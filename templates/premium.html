@@ -1,0 +1,93 @@
+{% extends "base.html" %}
+{% from "_form_errors.html" import field_errors %}
+
+{% block title %}Premium · FitnessTrackerPro.com{% endblock %}
+
+{% block content %}
+<section class="dashboard-grid">
+  <div class="panel premium-panel">
+    <div>
+      <p class="eyebrow">Premium</p>
+      <h1>Unlock deeper tracking.</h1>
+      <p class="lead">
+        Premium adds advanced analytics, extra insights, dashboard indicators, and a calorie calculator.
+        Price shown for your selected country: {{ premium_price.display|safe }}.
+      </p>
+      <p class="muted">This local demo activation does not process a real payment.</p>
+    </div>
+    <form method="post">
+      {{ form.hidden_tag() }}
+      <input type="hidden" name="form_name" value="activate">
+      {% if current_user.is_authenticated and current_user.premium_is_active %}
+        <button class="primary-button" type="submit">Extend demo Premium</button>
+      {% else %}
+        {{ form.submit(class="primary-button") }}
+      {% endif %}
+    </form>
+  </div>
+
+  <div class="panel">
+    <h2>Status</h2>
+    {% if current_user.is_authenticated %}
+      <div class="analytics-summary">
+        <div><strong>{% if current_user.premium_is_active %}Premium{% else %}Free{% endif %}</strong><span>Plan</span></div>
+        <div><strong>{{ current_user.premium_days_remaining }}</strong><span>Days remaining</span></div>
+      </div>
+      <p class="muted">
+        Start:
+        {% if current_user.premium_started_at %}
+          {{ current_user.premium_started_at.strftime("%d %b %Y") }}
+        {% else %}
+          -
+        {% endif %}
+        <br>
+        Expiry:
+        {% if current_user.premium_expires_at %}
+          {{ current_user.premium_expires_at.strftime("%d %b %Y") }}
+        {% else %}
+          -
+        {% endif %}
+      </p>
+      {% if current_user.premium_expiring_soon %}
+        <p class="flash info">Premium expires in about 10 days or less. Your data will stay saved if it expires.</p>
+      {% endif %}
+    {% else %}
+      <p class="muted">Log in to activate demo Premium for your account.</p>
+    {% endif %}
+  </div>
+</section>
+
+<section class="dashboard-grid compact-grid">
+  <div class="panel">
+    <h2>Included</h2>
+    <ul class="feature-list">
+      <li>Premium badge and dashboard indicators</li>
+      <li>Estimated calorie calculator</li>
+      <li>Advanced analytics and useful insights</li>
+      <li>Extra goal progress summaries</li>
+    </ul>
+  </div>
+
+  <div class="panel">
+    <h2>Calorie Calculator</h2>
+    {% if current_user.is_authenticated and current_user.premium_is_active %}
+      <form method="post" class="form-grid compact">
+        {{ calculator_form.hidden_tag() }}
+        <input type="hidden" name="form_name" value="calculator">
+        <label>{{ calculator_form.activity.label }} {{ calculator_form.activity() }}{{ field_errors(calculator_form.activity) }}</label>
+        <label>{{ calculator_form.duration_minutes.label }} {{ calculator_form.duration_minutes(min="1", max="300") }}{{ field_errors(calculator_form.duration_minutes) }}</label>
+        {{ calculator_form.submit(class="primary-button") }}
+      </form>
+      {% if calorie_result %}
+        <div class="preview-panel">
+          Estimated calories burned for {{ calorie_result.duration }} minutes of {{ calorie_result.activity }}:
+          <strong>{{ calorie_result.calories }}</strong>
+        </div>
+      {% endif %}
+    {% else %}
+      <p class="muted">The calorie calculator is a Premium feature.</p>
+      <a class="secondary-button" href="{{ url_for('auth.login') if not current_user.is_authenticated else url_for('premium.premium') }}">Log in or activate Premium</a>
+    {% endif %}
+  </div>
+</section>
+{% endblock %}

@@ -1,0 +1,263 @@
+{% extends "base.html" %}
+{% from "_form_errors.html" import field_errors %}
+
+{% block title %}Dashboard · FitnessTrackerPro.com{% endblock %}
+
+{% block content %}
+<section class="dashboard-grid">
+  <div class="panel">
+    <p class="eyebrow">Today</p>
+    <h1>Welcome, {{ current_user.name }}{% if current_user.premium_is_active %} <span class="inline-badge">&#128142;</span>{% endif %}</h1>
+    <p class="muted">
+      {% if current_user.premium_is_active %}
+        Premium active until {{ current_user.premium_expires_at.strftime("%d %b %Y") }}.
+        {% if current_user.premium_expiring_soon %}
+          Renewal warning: {{ current_user.premium_days_remaining }} days remaining.
+        {% endif %}
+      {% else %}
+        Free account. Premium tools are clearly marked below.
+      {% endif %}
+    </p>
+    <div class="stat-grid">
+      <div><strong>{{ stats.today_steps }}</strong><span>Steps today</span></div>
+      <div><strong>{{ stats.today_water_ml }}</strong><span>Water ml today</span></div>
+      <div><strong>{{ stats.today_workout_minutes }}</strong><span>Workout minutes</span></div>
+      <div><strong>{{ stats.today_calories }}</strong><span>Workout calories</span></div>
+      <div><strong>{{ stats.sessions }}</strong><span>Sessions this week</span></div>
+      <div><strong>{{ stats.minutes }}</strong><span>Minutes this week</span></div>
+    </div>
+  </div>
+
+  <div class="panel accent-panel">
+    <p class="eyebrow">Daily fitness tip</p>
+    <h2>{{ daily_tip }}</h2>
+    <p class="muted">Your country is {{ current_user.country or "not set" }} and Premium pricing is shown as {{ premium_price.display|safe }}.</p>
+  </div>
+</section>
+
+<section class="dashboard-grid compact-grid">
+  <div class="panel">
+    <h2>Water Intake</h2>
+    <p class="muted">{{ stats.today_water_ml }} ml of {{ stats.water_target_ml }} ml today, {{ stats.water_percent }}% complete.</p>
+    <div class="progress-track" aria-label="Daily water progress">
+      <span style="width: {{ stats.water_percent }}%"></span>
+    </div>
+    <form method="post" action="{{ url_for('fitness.add_water') }}" class="form-grid compact">
+      {{ water_form.hidden_tag() }}
+      <input type="hidden" name="form_name" value="water">
+      <div class="field-pair">
+        <label>{{ water_form.water_ml.label }} {{ water_form.water_ml(min="1", max="10000", placeholder="500") }}{{ field_errors(water_form.water_ml) }}</label>
+        <label>{{ water_form.recorded_on.label }} {{ water_form.recorded_on() }}{{ field_errors(water_form.recorded_on) }}</label>
+      </div>
+      {{ water_form.submit(class="primary-button") }}
+    </form>
+    <form method="post" action="{{ url_for('fitness.update_water') }}" class="form-grid compact inline-form">
+      {{ water_total_form.hidden_tag() }}
+      <input type="hidden" name="form_name" value="water_update">
+      <label>{{ water_total_form.total_ml.label }} {{ water_total_form.total_ml(min="0", max="20000", value=stats.today_water_ml) }}{{ field_errors(water_total_form.total_ml) }}</label>
+      {{ water_total_form.submit(class="secondary-button") }}
+    </form>
+    <form method="post" action="{{ url_for('fitness.reset_today_water') }}" onsubmit="return confirm('Reset today\\'s water entries?');">
+      {{ water_reset_form.hidden_tag() }}
+      <input type="hidden" name="form_name" value="water_reset">
+      {{ water_reset_form.submit(class="danger-button") }}
+    </form>
+  </div>
+
+  <div class="panel">
+    <h2>Step Tracker</h2>
+    <p class="muted">{{ stats.today_steps }} of {{ stats.step_target }} steps, {{ stats.step_percent }}% complete. Estimated calories from steps: {{ stats.estimated_step_calories }}.</p>
+    <div class="progress-track" aria-label="Daily step progress">
+      <span style="width: {{ stats.step_percent }}%"></span>
+    </div>
+    <form method="post" action="{{ url_for('fitness.update_steps') }}" class="form-grid compact">
+      {{ step_form.hidden_tag() }}
+      <input type="hidden" name="form_name" value="steps">
+      <div class="field-pair">
+        <label>{{ step_form.steps.label }} {{ step_form.steps(min="0", max="100000", value=stats.today_steps) }}{{ field_errors(step_form.steps) }}</label>
+        <label>{{ step_form.recorded_on.label }} {{ step_form.recorded_on() }}{{ field_errors(step_form.recorded_on) }}</label>
+      </div>
+      {{ step_form.submit(class="primary-button") }}
+    </form>
+  </div>
+</section>
+
+<section class="dashboard-grid">
+  <div class="panel">
+    <h2>Add Workout</h2>
+    <form method="post" action="{{ url_for('fitness.add_workout') }}" class="form-grid compact" id="workout-form" data-sports='{{ sports | tojson }}'>
+      {{ workout_form.hidden_tag() }}
+      <input type="hidden" name="form_name" value="workout">
+      <label>{{ workout_form.activity.label }} {{ workout_form.activity() }}{{ field_errors(workout_form.activity) }}</label>
+      <div class="field-pair">
+        <label>{{ workout_form.duration_minutes.label }} {{ workout_form.duration_minutes(min="1", max="300") }}{{ field_errors(workout_form.duration_minutes) }}</label>
+        <label>{{ workout_form.workout_date.label }} {{ workout_form.workout_date() }}{{ field_errors(workout_form.workout_date) }}</label>
+      </div>
+      <div class="field-pair">
+        <label>{{ workout_form.calories.label }} {{ workout_form.calories(min="0", max="6000") }}{{ field_errors(workout_form.calories) }}</label>
+        <label>{{ workout_form.steps.label }} {{ workout_form.steps(min="0", max="100000") }}{{ field_errors(workout_form.steps) }}</label>
+      </div>
+      <details class="form-details">
+        <summary>Optional route privacy fields</summary>
+        <div class="field-pair">
+          <label>{{ workout_form.start_latitude.label }} {{ workout_form.start_latitude(step="0.00001") }}{{ field_errors(workout_form.start_latitude) }}</label>
+          <label>{{ workout_form.start_longitude.label }} {{ workout_form.start_longitude(step="0.00001") }}{{ field_errors(workout_form.start_longitude) }}</label>
+        </div>
+        <div class="field-pair">
+          <label>{{ workout_form.end_latitude.label }} {{ workout_form.end_latitude(step="0.00001") }}{{ field_errors(workout_form.end_latitude) }}</label>
+          <label>{{ workout_form.end_longitude.label }} {{ workout_form.end_longitude(step="0.00001") }}{{ field_errors(workout_form.end_longitude) }}</label>
+        </div>
+      </details>
+      {{ workout_form.submit(class="primary-button") }}
+    </form>
+    <div id="workout-preview" class="preview-panel">
+      Estimated calories: 0<br>
+      Estimated steps: 0
+    </div>
+  </div>
+
+  <div class="panel">
+    <h2>BMI Calculator</h2>
+    {% if stats.bmi is not none %}
+      <p class="bmi-number">{{ stats.bmi }}</p>
+      <p><strong>{{ stats.bmi_category }}</strong></p>
+      <p class="muted">{{ stats.bmi_explanation }}</p>
+    {% else %}
+      <p class="muted">Enter height and weight to calculate BMI.</p>
+    {% endif %}
+    <form method="post" action="{{ url_for('fitness.update_bmi') }}" class="form-grid compact">
+      {{ bmi_form.hidden_tag() }}
+      <input type="hidden" name="form_name" value="bmi">
+      <div class="field-pair">
+        <label>{{ bmi_form.height_cm.label }} {{ bmi_form.height_cm(step="0.1", min="80", max="250", value=current_user.height_cm or "") }}{{ field_errors(bmi_form.height_cm) }}</label>
+        <label>{{ bmi_form.weight_kg.label }} {{ bmi_form.weight_kg(step="0.1", min="20", max="500", value=weight_progress.latest or "") }}{{ field_errors(bmi_form.weight_kg) }}</label>
+      </div>
+      <label>{{ bmi_form.recorded_on.label }} {{ bmi_form.recorded_on() }}{{ field_errors(bmi_form.recorded_on) }}</label>
+      {{ bmi_form.submit(class="primary-button") }}
+    </form>
+  </div>
+</section>
+
+<section class="dashboard-grid compact-grid">
+  <div class="panel">
+    <h2>Weight Progress</h2>
+    {% if weight_progress.latest is not none %}
+      <div class="analytics-summary">
+        <div><strong>{{ "%.1f"|format(weight_progress.latest) }}</strong><span>Current kg</span></div>
+        <div><strong>{% if weight_progress.goal is not none %}{{ "%.1f"|format(weight_progress.goal) }}{% else %}-{% endif %}</strong><span>Goal kg</span></div>
+      </div>
+      {% if weight_progress.change is not none %}
+        <p class="metric-change {% if weight_progress.change <= 0 %}positive{% else %}negative{% endif %}">
+          {{ "%+.1f"|format(weight_progress.change) }} kg since your previous entry
+        </p>
+      {% endif %}
+      {% if weight_progress.goal is not none %}
+        <div class="progress-track" aria-label="Weight goal progress">
+          <span style="width: {{ weight_progress.goal_percent }}%"></span>
+        </div>
+        <p class="muted">{{ weight_progress.goal_percent }}% toward your weight goal.</p>
+      {% endif %}
+    {% else %}
+      <p class="muted">Save BMI or weight data to start progress tracking.</p>
+    {% endif %}
+  </div>
+
+  <div class="panel">
+    <h2>Goal Tracker</h2>
+    <form method="post" action="{{ url_for('fitness.save_goal') }}" class="form-grid compact">
+      {{ goal_form.hidden_tag() }}
+      <input type="hidden" name="form_name" value="goal">
+      <div class="field-pair">
+        <label>{{ goal_form.goal_type.label }} {{ goal_form.goal_type() }}{{ field_errors(goal_form.goal_type) }}</label>
+        <label>{{ goal_form.target_value.label }} {{ goal_form.target_value(step="0.1", min="0.1") }}{{ field_errors(goal_form.target_value) }}</label>
+      </div>
+      {{ goal_form.submit(class="primary-button") }}
+    </form>
+    {% if goal_progress %}
+      <div class="goal-list">
+        {% for goal in goal_progress %}
+          <div>
+            <strong>{{ goal.label }}</strong>
+            <span>{{ goal.status }} / target {{ "%.1f"|format(goal.target) }} {{ goal.unit }}</span>
+            <div class="progress-track"><span style="width: {{ goal.percent }}%"></span></div>
+          </div>
+        {% endfor %}
+      </div>
+    {% else %}
+      <p class="muted">No goals yet. Add one above.</p>
+    {% endif %}
+  </div>
+</section>
+
+<section class="dashboard-grid compact-grid">
+  <div class="panel">
+    <h2>Premium Features</h2>
+    {% if current_user.premium_is_active %}
+      <p class="muted">Premium indicators, advanced analytics, and calorie estimates are active for this account.</p>
+      <a class="secondary-button" href="{{ url_for('premium.premium') }}">Open calorie calculator</a>
+    {% else %}
+      <p class="muted">Advanced analytics and the calorie calculator require Premium. Demo Premium starts at {{ premium_price.display|safe }} with no payment gateway.</p>
+      <a class="secondary-button" href="{{ url_for('premium.premium') }}">View Premium</a>
+    {% endif %}
+  </div>
+<section class="panel">
+  <p class="eyebrow">Take a break</p>
+  <h2>🎮 Games</h2>
+  <p class="muted">
+    Play Running John and Gobble & Ungobble.
+  </p>
+  <a class="primary-button" href="{{ url_for('fitness.games') }}">
+    Open Games
+  </a>
+</section>
+  <div class="panel danger-panel">
+    <h2>Reset Fitness Data</h2>
+    <p class="muted">This deletes workouts, water, steps, weight records, and goals. It does not delete your account or Premium status.</p>
+    <form method="post" action="{{ url_for('fitness.reset_data') }}" class="form-grid compact" onsubmit="return confirm('Reset all fitness data for this account?');">
+      {{ reset_form.hidden_tag() }}
+      <input type="hidden" name="form_name" value="reset_data">
+      <label class="checkbox-field">
+        {{ reset_form.confirm_reset() }}
+        <span>{{ reset_form.confirm_reset.label.text }}</span>
+      </label>
+      {{ reset_form.submit(class="danger-button") }}
+    </form>
+  </div>
+</section>
+
+<section class="panel">
+  <h2>Recent Workouts</h2>
+  {% if workouts %}
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>Date</th>
+            <th>Activity</th>
+            <th>Minutes</th>
+            <th>Calories</th>
+            <th>Steps</th>
+            <th>Public Start</th>
+            <th>Public End</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for workout in workouts %}
+            <tr>
+              <td>{{ workout.workout_date.strftime("%d %b %Y") }}</td>
+              <td>{{ workout.activity }}</td>
+              <td>{{ workout.duration_minutes }}</td>
+              <td>{{ workout.calories }}</td>
+              <td>{{ workout.steps }}</td>
+              <td>{{ workout.public_start_location(current_user) }}</td>
+              <td>{{ workout.public_end_location(current_user) }}</td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  {% else %}
+    <p class="muted">No workouts yet.</p>
+  {% endif %}
+</section>
+{% endblock %}

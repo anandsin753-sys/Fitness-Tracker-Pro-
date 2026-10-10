@@ -1,0 +1,83 @@
+{% extends "base.html" %}
+{% from "_form_errors.html" import field_errors %}
+
+{% block title %}Profile · FitnessTrackerPro.com{% endblock %}
+
+{% block content %}
+<section class="dashboard-grid">
+  <div class="panel">
+    <h1>Profile</h1>
+    <p class="muted">{{ current_user.email }}</p>
+    <div class="analytics-summary">
+      <div><strong>{{ current_user.country or "-" }}</strong><span>Country</span></div>
+      <div><strong>{{ user_currency.currency_code }}</strong><span>Currency</span></div>
+      <div>
+        <strong>{% if current_user.premium_is_active %}Premium{% else %}Free{% endif %}</strong>
+        <span>Account</span>
+      </div>
+      <div>
+        <strong>
+          {% if current_user.premium_expires_at %}
+            {{ current_user.premium_expires_at.strftime("%d %b %Y") }}
+          {% else %}
+            -
+          {% endif %}
+        </strong>
+        <span>Premium expiry</span>
+      </div>
+    </div>
+    {% if current_user.premium_is_active %}
+      <p class="muted">
+        Started {{ current_user.premium_started_at.strftime("%d %b %Y") if current_user.premium_started_at else "-" }}.
+        {{ current_user.premium_days_remaining }} days remaining.
+      </p>
+      {% if current_user.premium_expiring_soon %}
+        <p class="flash info">Premium expires soon. Your data will remain saved if it expires.</p>
+      {% endif %}
+    {% endif %}
+  </div>
+
+  <div class="panel">
+    <h2>Edit Profile</h2>
+    <form method="post" class="form-grid">
+      {{ form.hidden_tag() }}
+      <label>{{ form.name.label }} {{ form.name(autocomplete="name") }}{{ field_errors(form.name) }}</label>
+      <label>{{ form.country.label }} {{ form.country() }}{{ field_errors(form.country) }}</label>
+      <div class="field-pair">
+        <label>{{ form.height_cm.label }} {{ form.height_cm(step="0.1", min="80", max="250") }}{{ field_errors(form.height_cm) }}</label>
+        <label>{{ form.weight_goal_kg.label }} {{ form.weight_goal_kg(step="0.1", min="20", max="500") }}{{ field_errors(form.weight_goal_kg) }}</label>
+      </div>
+      <div class="field-pair">
+        <label>{{ form.daily_water_goal_ml.label }} {{ form.daily_water_goal_ml(min="250", max="10000") }}{{ field_errors(form.daily_water_goal_ml) }}</label>
+        <label>{{ form.daily_step_goal.label }} {{ form.daily_step_goal(min="100", max="100000") }}{{ field_errors(form.daily_step_goal) }}</label>
+      </div>
+      <label>{{ form.daily_workout_goal_minutes.label }} {{ form.daily_workout_goal_minutes(min="5", max="300") }}{{ field_errors(form.daily_workout_goal_minutes) }}</label>
+
+      <div class="form-section">
+        <h2>Privacy Zone</h2>
+        <label class="checkbox-field">
+          {{ form.privacy_zones_enabled() }}
+          <span>{{ form.privacy_zones_enabled.label.text }}</span>
+        </label>
+        <label>{{ form.privacy_zone_name.label }} {{ form.privacy_zone_name(placeholder="Home") }}{{ field_errors(form.privacy_zone_name) }}</label>
+        <div class="field-pair">
+          <label>{{ form.privacy_zone_latitude.label }} {{ form.privacy_zone_latitude(step="0.00001") }}{{ field_errors(form.privacy_zone_latitude) }}</label>
+          <label>{{ form.privacy_zone_longitude.label }} {{ form.privacy_zone_longitude(step="0.00001") }}{{ field_errors(form.privacy_zone_longitude) }}</label>
+        </div>
+        <label>{{ form.privacy_zone_radius_meters.label }} {{ form.privacy_zone_radius_meters(min="50", max="5000") }}{{ field_errors(form.privacy_zone_radius_meters) }}</label>
+      </div>
+
+      <div class="form-section">
+        <h2>Tracking</h2>
+        <label class="checkbox-field">
+          {{ form.allow_third_party_tracking() }}
+          <span>{{ form.allow_third_party_tracking.label.text }}</span>
+        </label>
+      </div>
+
+      {{ form.submit(class="primary-button") }}
+    </form>
+  </div>
+
+</section>
+{% endblock %}

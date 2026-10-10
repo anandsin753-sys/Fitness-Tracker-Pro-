@@ -1,0 +1,61 @@
+{
+  "Running": {
+    "calories_per_min": 10,
+    "steps_per_min": 120
+  },
+
+  "Walking": {
+    "calories_per_min": 5,
+    "steps_per_min": 100
+  },
+
+  "Cycling": {
+    "calories_per_min": 8,
+    "steps_per_min": 0
+  },
+
+  "Swimming": {
+    "calories_per_min": 11,
+    "steps_per_min": 0
+  },
+
+  "Strength Training": {
+    "calories_per_min": 7,
+    "steps_per_min": 0
+  },
+
+  "Gym Workout": {
+    "calories_per_min": 7,
+    "steps_per_min": 0
+  },
+
+  "Yoga": {
+    "calories_per_min": 3,
+    "steps_per_min": 0
+  },
+
+  "Push-Ups": {
+    "calories_per_min": 8,
+    "steps_per_min": 0
+  },
+
+  "Football": {
+    "calories_per_min": 9,
+    "steps_per_min": 90
+  },
+
+  "Basketball": {
+    "calories_per_min": 8,
+    "steps_per_min": 80
+  },
+
+  "Dancing": {
+    "calories_per_min": 6,
+    "steps_per_min": 70
+  },
+
+  "HIIT": {
+    "calories_per_min": 12,
+    "steps_per_min": 40
+  }
+}

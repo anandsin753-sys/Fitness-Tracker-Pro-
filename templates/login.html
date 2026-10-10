@@ -1,0 +1,22 @@
+{% extends "base.html" %}
+{% from "_form_errors.html" import field_errors %}
+
+{% block title %}Log In · FitnessTrackerPro.com{% endblock %}
+
+{% block content %}
+<section class="panel narrow">
+  <h1>Log in</h1>
+  <form method="post" class="form-grid">
+    {{ form.hidden_tag() }}
+    <label>{{ form.email.label }} {{ form.email(autocomplete="email") }}{{ field_errors(form.email) }}</label>
+    <label class="password-row">{{ form.password.label }} {{ form.password() }}{{ field_errors(form.password) }}</label>
+    {{ form.submit(class="primary-button") }}
+  </form>
+  {% if email_verification_required %}
+    <p class="muted">
+      Need a new verification email?
+      <a href="{{ url_for('auth.resend_verification') }}">Resend verification email</a>
+    </p>
+  {% endif %}
+</section>
+{% endblock %}

@@ -1,0 +1,52 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="application-name" content="FitnessTrackerPro.com">
+  <title>{% block title %}FitnessTrackerPro.com{% endblock %}</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+  {% block extra_head %}{% endblock %}
+  <script defer src="{{ url_for('static', filename='js/auth.js') }}"></script>
+  <script defer src="{{ url_for('static', filename='js/dashboard.js') }}"></script>
+  <script defer src="{{ url_for('static', filename='js/charts.js') }}"></script>
+</head>
+<body>
+  <header class="topbar">
+    <a class="brand" href="{{ url_for('index') }}">FitnessTrackerPro.com</a>
+    <nav class="nav">
+      {% if current_user.is_authenticated %}
+        <a href="{{ url_for('fitness.dashboard') }}">Dashboard</a>
+        <a href="{{ url_for('fitness.analytics') }}">Analytics</a>
+        <a href="{{ url_for('fitness.metrics') }}">Metrics</a>
+        <a href="{{ url_for('ai.nutrition') }}">Nutrition Planner</a>
+        <a href="{{ url_for('fitness.games') }}">Games</a>
+        <a href="{{ url_for('fitness.profile') }}">Profile</a>
+        <a href="{{ url_for('premium.premium') }}">Premium</a>
+        {% if current_user.premium_is_active %}
+          <span class="premium-badge">&#128142; Premium</span>
+        {% endif %}
+        <a href="{{ url_for('auth.logout') }}">Logout</a>
+      {% else %}
+        <a href="{{ url_for('auth.login') }}">Login</a>
+        <a class="button-link" href="{{ url_for('auth.signup') }}">Sign up</a>
+      {% endif %}
+    </nav>
+  </header>
+
+  <main class="page">
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% if messages %}
+        <div class="flash-stack">
+          {% for category, message in messages %}
+            <p class="flash {{ category }}">{{ message }}</p>
+          {% endfor %}
+        </div>
+      {% endif %}
+    {% endwith %}
+
+    {% block content %}{% endblock %}
+  </main>
+  {% block extra_scripts %}{% endblock %}
+</body>
+</html>

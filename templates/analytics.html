@@ -1,0 +1,88 @@
+{% extends "base.html" %}
+
+{% block title %}Analytics · FitnessTrackerPro.com{% endblock %}
+
+{% block content %}
+<section class="panel">
+  <p class="eyebrow">Last 7 days</p>
+  <h1>Analytics</h1>
+  <div class="analytics-summary">
+    <div><strong>{{ totals.minutes }}</strong><span>Total minutes</span></div>
+    <div><strong>{{ totals.calories }}</strong><span>Total calories</span></div>
+    <div><strong>{{ totals.steps }}</strong><span>Total steps</span></div>
+    <div><strong>{{ totals.water_ml }}</strong><span>Total water ml</span></div>
+    <div><strong>{{ totals.average_water_ml }}</strong><span>Avg water ml/day</span></div>
+    <div><strong>{{ totals.best_day }}</strong><span>Best workout day</span></div>
+    <div><strong>{{ totals.favorite_activity }}</strong><span>Favorite activity</span></div>
+  </div>
+  <div class="chart-panel">
+    <h2>Personal Fitness Report</h2>
+    <p class="muted">{{ fitness_report }}</p>
+  </div>
+</section>
+
+<section class="chart-grid">
+  <div class="chart-panel">
+    <h2>Workout Minutes</h2>
+    <canvas class="mini-chart" width="520" height="260" data-labels='{{ chart_data.labels | tojson }}' data-values='{{ chart_data.minutes | tojson }}' data-color="#1f8f5f" data-unit="min"></canvas>
+  </div>
+  <div class="chart-panel">
+    <h2>Steps</h2>
+    <canvas class="mini-chart" width="520" height="260" data-labels='{{ chart_data.labels | tojson }}' data-values='{{ chart_data.steps | tojson }}' data-color="#246bfe" data-unit="steps"></canvas>
+  </div>
+  <div class="chart-panel">
+    <h2>Water Intake</h2>
+    <canvas class="mini-chart" width="520" height="260" data-labels='{{ chart_data.labels | tojson }}' data-values='{{ chart_data.water | tojson }}' data-color="#0f9f9a" data-unit="ml"></canvas>
+  </div>
+  <div class="chart-panel">
+    <h2>Calories Burned</h2>
+    <canvas class="mini-chart" width="520" height="260" data-labels='{{ chart_data.labels | tojson }}' data-values='{{ chart_data.calories | tojson }}' data-color="#f2a60c" data-unit="cal"></canvas>
+  </div>
+</section>
+
+<section class="dashboard-grid compact-grid">
+  <div class="panel">
+    <h2>Weight Progress</h2>
+    {% if chart_data.weight %}
+      <canvas class="mini-chart" width="520" height="260" data-labels='{{ chart_data.weight_labels | tojson }}' data-values='{{ chart_data.weight | tojson }}' data-color="#c43d3d" data-unit="kg"></canvas>
+    {% else %}
+      <p class="muted">No weight records yet.</p>
+    {% endif %}
+  </div>
+
+  <div class="panel">
+    <h2>Goal Progress</h2>
+    {% if goal_progress %}
+      <div class="goal-list">
+        {% for goal in goal_progress %}
+          <div>
+            <strong>{{ goal.label }}</strong>
+            <span>{{ goal.status }} / target {{ "%.1f"|format(goal.target) }} {{ goal.unit }}</span>
+            <div class="progress-track"><span style="width: {{ goal.percent }}%"></span></div>
+          </div>
+        {% endfor %}
+      </div>
+    {% else %}
+      <p class="muted">No active goals yet.</p>
+    {% endif %}
+  </div>
+</section>
+
+<section class="panel">
+  <h2>Advanced Analytics</h2>
+  {% if current_user.premium_is_active %}
+    {% if advanced_insights %}
+      <ul class="feature-list">
+        {% for insight in advanced_insights %}
+          <li>{{ insight }}</li>
+        {% endfor %}
+      </ul>
+    {% else %}
+      <p class="muted">Add more data to generate advanced insights.</p>
+    {% endif %}
+  {% else %}
+    <p class="muted">Advanced analytics require Premium. Free accounts still keep all basic charts above.</p>
+    <a class="secondary-button" href="{{ url_for('premium.premium') }}">View Premium</a>
+  {% endif %}
+</section>
+{% endblock %}

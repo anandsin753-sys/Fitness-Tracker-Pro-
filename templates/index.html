@@ -1,0 +1,30 @@
+{% extends "base.html" %}
+
+{% block title %}FitnessTrackerPro.com{% endblock %}
+
+{% block content %}
+<section class="landing-hero">
+  <img
+    src="{{ url_for('static', filename='images/hero.jpg') }}"
+    alt="Athlete training in a gym"
+    class="landing-hero-media"
+  >
+  <div class="landing-hero-copy">
+    <p class="eyebrow">Personal fitness dashboard</p>
+    <h1>FitnessTrackerPro.com</h1>
+    <p class="lead">
+      Log workouts, hydration, steps, BMI, weight progress, goals, and real analytics in one focused dashboard.
+    </p>
+    <div class="actions">
+      <a class="primary-button" href="{{ url_for('auth.signup') }}">Sign up</a>
+      <a class="secondary-button" href="{{ url_for('auth.login') }}">Log in</a>
+    </div>
+  </div>
+</section>
+
+<section class="feature-strip">
+  <div><strong>Free tracking</strong><span>Water, steps, workouts, BMI, goals</span></div>
+  <div><strong>Analytics</strong><span>Charts from your saved SQLite data</span></div>
+  <div><strong>Premium</strong><span>Advanced insights and calorie estimates from {{ premium_price.display|safe }}</span></div>
+</section>
+{% endblock %}

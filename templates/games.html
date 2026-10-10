@@ -1,0 +1,106 @@
+{% extends "base.html" %}
+
+{% block title %}Fitness Games · FitnessTrackerPro.com{% endblock %}
+
+{% block content %}
+<section class="panel games-hero">
+  <p class="eyebrow">Quick play</p>
+  <h1>🎮 Fitness Games</h1>
+  <p class="lead">
+    Short fitness-themed mini-games for quick breaks between workouts, hydration, and progress tracking.
+  </p>
+</section>
+
+<section class="dashboard-grid games-grid">
+  <article class="panel game-card">
+    <h2>🏃 Running John</h2>
+    <p class="muted">
+      Run away from the monster, dodge obstacles, and survive as long as possible.
+    </p>
+    <button id="start-running-john" class="primary-button" type="button">
+      Play Running John
+    </button>
+  </article>
+
+  <article class="panel game-card">
+    <h2>🍴 Gobble & Ungobble</h2>
+    <p class="muted">
+      Eat the right things, avoid the wrong things, and keep your score high.
+    </p>
+    <button id="start-gobble-ungobble" class="primary-button" type="button">
+      Play Gobble & Ungobble
+    </button>
+  </article>
+</section>
+
+<section class="dashboard-grid games-play-grid">
+  <article id="running-john-game" class="panel game-panel" hidden>
+    <div class="game-panel-header">
+      <div>
+        <p class="eyebrow">Endless runner</p>
+        <h2>Running John</h2>
+      </div>
+      <div class="game-scoreboard" aria-live="polite">
+        <span id="running-john-score">Score: 0</span>
+        <span id="running-john-best">Best: 0</span>
+      </div>
+    </div>
+
+    <div class="game-canvas-wrap">
+      <canvas
+        id="running-john-canvas"
+        width="900"
+        height="420"
+        aria-label="Running John game"
+      ></canvas>
+    </div>
+
+    <div class="actions game-actions">
+      <button id="running-john-jump" class="secondary-button" type="button">
+        Jump
+      </button>
+      <button id="restart-running-john" class="secondary-button" type="button">
+        Restart
+      </button>
+    </div>
+  </article>
+
+  <article id="gobble-ungobble-game" class="panel game-panel" hidden>
+    <div class="game-panel-header">
+      <div>
+        <p class="eyebrow">Food reflexes</p>
+        <h2>Gobble & Ungobble</h2>
+      </div>
+      <div class="game-scoreboard" aria-live="polite">
+        <span id="gobble-ungobble-score">Score: 0</span>
+        <span id="gobble-ungobble-best">Best: 0</span>
+        <span id="gobble-ungobble-lives">Lives: 3</span>
+      </div>
+    </div>
+
+    <div class="game-canvas-wrap">
+      <canvas
+        id="gobble-ungobble-canvas"
+        width="760"
+        height="420"
+        aria-label="Gobble and Ungobble game"
+      ></canvas>
+    </div>
+
+    <div class="actions game-actions">
+      <button id="gobble-left" class="secondary-button" type="button">
+        Left
+      </button>
+      <button id="gobble-right" class="secondary-button" type="button">
+        Right
+      </button>
+      <button id="restart-gobble-ungobble" class="secondary-button" type="button">
+        Restart
+      </button>
+    </div>
+  </article>
+</section>
+
+<script defer src="{{ url_for('static', filename='js/running_john.js') }}"></script>
+<script defer src="{{ url_for('static', filename='js/gobble_ungobble.js') }}"></script>
+{% endblock %}

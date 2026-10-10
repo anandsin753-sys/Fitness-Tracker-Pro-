@@ -1,0 +1,16 @@
+{% extends "base.html" %}
+{% from "_form_errors.html" import field_errors %}
+
+{% block title %}Resend Verification Email · FitnessTrackerPro.com{% endblock %}
+
+{% block content %}
+<section class="panel narrow">
+  <h1>Resend verification email</h1>
+  <p class="muted">Enter the email address you used to create your account.</p>
+  <form method="post" class="form-grid">
+    {{ form.hidden_tag() }}
+    <label>{{ form.email.label }} {{ form.email(autocomplete="email") }}{{ field_errors(form.email) }}</label>
+    {{ form.submit(class="primary-button") }}
+  </form>
+</section>
+{% endblock %}

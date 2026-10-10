@@ -1,0 +1,83 @@
+{% extends "base.html" %}
+{% from "_form_errors.html" import field_errors %}
+
+{% block title %}Metrics · FitnessTrackerPro.com{% endblock %}
+
+{% block content %}
+<section class="dashboard-grid">
+  <div class="panel">
+    <p class="eyebrow">Body progress</p>
+    <h1>Metrics</h1>
+    {% if latest_metric %}
+      <div class="analytics-summary">
+        <div>
+          <strong>{{ "%.1f"|format(latest_metric.weight_kg) }}</strong>
+          <span>Latest weight kg</span>
+        </div>
+        <div>
+          <strong>
+            {% if latest_metric.body_fat_percent is not none %}
+              {{ "%.1f"|format(latest_metric.body_fat_percent) }}%
+            {% else %}
+              -
+            {% endif %}
+          </strong>
+          <span>Body fat</span>
+        </div>
+      </div>
+      {% if weight_change is not none %}
+        <p class="metric-change {% if weight_change <= 0 %}positive{% else %}negative{% endif %}">
+          {{ "%+.1f"|format(weight_change) }} kg since your previous entry
+        </p>
+      {% endif %}
+    {% else %}
+      <p class="muted">Log your first weight entry to start tracking progress.</p>
+    {% endif %}
+  </div>
+
+  <div class="panel">
+    <h2>Add metrics</h2>
+    <form method="post" class="form-grid compact">
+      {{ form.hidden_tag() }}
+      <label>{{ form.weight_kg.label }} {{ form.weight_kg(step="0.1", min="20") }}{{ field_errors(form.weight_kg) }}</label>
+      <label>{{ form.body_fat_percent.label }} {{ form.body_fat_percent(step="0.1", min="0") }}{{ field_errors(form.body_fat_percent) }}</label>
+      <label>{{ form.recorded_on.label }} {{ form.recorded_on() }}{{ field_errors(form.recorded_on) }}</label>
+      {{ form.submit(class="primary-button") }}
+    </form>
+  </div>
+</section>
+
+<section class="panel">
+  <h2>Recent metrics</h2>
+  {% if metrics %}
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>Date</th>
+            <th>Weight</th>
+            <th>Body fat</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for metric in metrics %}
+            <tr>
+              <td>{{ metric.recorded_on.strftime("%d %b %Y") }}</td>
+              <td>{{ "%.1f"|format(metric.weight_kg) }} kg</td>
+              <td>
+                {% if metric.body_fat_percent is not none %}
+                  {{ "%.1f"|format(metric.body_fat_percent) }}%
+                {% else %}
+                  -
+                {% endif %}
+              </td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  {% else %}
+    <p class="muted">No metrics yet.</p>
+  {% endif %}
+</section>
+{% endblock %}

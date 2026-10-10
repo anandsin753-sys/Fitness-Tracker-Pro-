@@ -1,0 +1,24 @@
+{% extends "base.html" %}
+{% from "_form_errors.html" import field_errors %}
+
+{% block title %}Create Account · FitnessTrackerPro.com{% endblock %}
+
+{% block content %}
+<section class="panel narrow">
+  <h1>Create account</h1>
+  <form method="post" class="form-grid">
+    {{ form.hidden_tag() }}
+    <label>{{ form.name.label }} {{ form.name(autocomplete="name") }}{{ field_errors(form.name) }}</label>
+    <label>{{ form.email.label }} {{ form.email(autocomplete="email") }}{{ field_errors(form.email) }}</label>
+    <label>{{ form.country.label }} {{ form.country() }}{{ field_errors(form.country) }}</label>
+    <div class="field-pair">
+      <label>{{ form.height_cm.label }} {{ form.height_cm(step="0.1", min="80", max="250") }}{{ field_errors(form.height_cm) }}</label>
+      <label>{{ form.weight_kg.label }} {{ form.weight_kg(step="0.1", min="20", max="500") }}{{ field_errors(form.weight_kg) }}</label>
+    </div>
+    <label>{{ form.weight_goal_kg.label }} {{ form.weight_goal_kg(step="0.1", min="20", max="500") }}{{ field_errors(form.weight_goal_kg) }}</label>
+    <label class="password-row">{{ form.password.label }} {{ form.password(autocomplete="new-password") }}{{ field_errors(form.password) }}</label>
+    <label>{{ form.confirm_password.label }} {{ form.confirm_password(autocomplete="new-password") }}{{ field_errors(form.confirm_password) }}</label>
+    {{ form.submit(class="primary-button") }}
+  </form>
+</section>
+{% endblock %}

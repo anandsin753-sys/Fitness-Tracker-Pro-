@@ -1,0 +1,144 @@
+{% extends "base.html" %}
+
+{% block title %}Nutrition Planner · FitnessTrackerPro.com{% endblock %}
+
+{% block extra_head %}
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/nutrition.css') }}">
+{% endblock %}
+
+{% block content %}
+<section class="nutrition-page">
+  <header class="nutrition-hero">
+    <p class="nutrition-eyebrow">Offline nutrition planner</p>
+    <h1>Eat well, in a way that fits your routine.</h1>
+    <p class="nutrition-lede">Get an estimated daily calorie target and a flexible seven-day meal plan built from the app’s local meal data.</p>
+  </header>
+
+  <div class="nutrition-layout">
+    <section class="nutrition-panel nutrition-form-panel" aria-labelledby="nutrition-form-title">
+      <div class="nutrition-panel-heading">
+        <span class="nutrition-step">01</span>
+        <div>
+          <h2 id="nutrition-form-title">Your starting point</h2>
+          <p>For adults ages 18–80. Your answers are not saved to your account.</p>
+        </div>
+      </div>
+
+      <form id="nutrition-form" action="{{ url_for('ai.generate_plan') }}" method="post" novalidate>
+        {{ form.hidden_tag() }}
+        <div class="nutrition-fields">
+          <div class="nutrition-field">
+            {{ form.age.label }}
+            {{ form.age(class_="nutrition-control", min="18", max="80", placeholder="e.g. 28", required=True) }}
+            <span class="nutrition-hint">years</span>
+          </div>
+          <div class="nutrition-field">
+            {{ form.equation.label }}
+            {{ form.equation(class_="nutrition-control", required=True) }}
+            <span class="nutrition-hint">The equation uses a coefficient. Choose a range if you prefer not to select one.</span>
+          </div>
+          <div class="nutrition-field">
+            {{ form.weight_kg.label }}
+            {{ form.weight_kg(class_="nutrition-control", min="35", max="250", step="0.1", placeholder="e.g. 72", required=True) }}
+            <span class="nutrition-hint">kilograms</span>
+          </div>
+          <div class="nutrition-field">
+            {{ form.height_cm.label }}
+            {{ form.height_cm(class_="nutrition-control", min="130", max="220", step="0.1", placeholder="e.g. 175", required=True) }}
+            <span class="nutrition-hint">centimeters</span>
+          </div>
+          <div class="nutrition-field nutrition-field-full">
+            {{ form.activity.label }}
+            {{ form.activity(class_="nutrition-control", required=True) }}
+          </div>
+          <div class="nutrition-field">
+            {{ form.goal.label }}
+            {{ form.goal(class_="nutrition-control", required=True) }}
+          </div>
+          <div class="nutrition-field">
+            {{ form.dietary_style.label }}
+            {{ form.dietary_style(class_="nutrition-control", required=True) }}
+          </div>
+          <div class="nutrition-field nutrition-field-full">
+            {{ form.cuisine.label }}
+            {{ form.cuisine(class_="nutrition-control", required=True) }}
+          </div>
+          <div class="nutrition-field nutrition-field-full">
+            {{ form.risk_factor.label }}
+            {{ form.risk_factor(class_="nutrition-control", required=True) }}
+            <span class="nutrition-hint">This starter planner cannot handle clinical diets, pregnancy, food allergies, or eating-disorder support.</span>
+          </div>
+        </div>
+
+        <div class="nutrition-privacy">
+          <strong>Your data stays in this app</strong>
+          <p>Calorie estimates and meal suggestions are created locally from the bundled JSON dataset. Your answers are not sent to an AI service and are not saved by this planner.</p>
+        </div>
+
+        <button class="nutrition-submit" id="nutrition-submit" type="submit">
+          <span>Build my 7-day plan</span><span aria-hidden="true">↗</span>
+        </button>
+      </form>
+    </section>
+
+    <section class="nutrition-panel nutrition-output-panel" aria-labelledby="nutrition-output-title" aria-live="polite">
+      <div class="nutrition-empty" id="nutrition-empty">
+        <div class="nutrition-empty-icon" aria-hidden="true">✳</div>
+        <h2 id="nutrition-output-title">Your guide will appear here</h2>
+        <p>Complete the form to get an estimated calorie range and meal ideas selected from the local dataset.</p>
+      </div>
+
+      <div id="nutrition-status" class="nutrition-status" role="status" aria-live="polite"></div>
+
+      <div id="nutrition-results" hidden>
+        <div class="nutrition-results-heading">
+          <div>
+            <p class="nutrition-eyebrow">Your estimate</p>
+            <h2 id="nutrition-output-heading">A starting point, not a rule</h2>
+          </div>
+          <span id="nutrition-goal-badge" class="nutrition-goal-badge"></span>
+        </div>
+
+        <div class="nutrition-calorie-card">
+          <span>Estimated daily calories for your focus</span>
+          <strong id="nutrition-target"></strong>
+          <div class="nutrition-calorie-details">
+            <span>Estimated maintenance <b id="nutrition-maintenance"></b></span>
+            <span>Resting estimate <b id="nutrition-resting"></b></span>
+          </div>
+        </div>
+        <p class="nutrition-explainer">The estimate uses the Mifflin–St Jeor equation and a broad activity multiplier. The gradual-loss option uses 10% below estimated maintenance; gradual gain uses 5% above. These are simple starting adjustments, not prescriptions. Meal calories are approximate estimates from the bundled data, and actual values change with ingredients, brands, and preparation.</p>
+
+        <div id="nutrition-plan" hidden>
+          <div class="nutrition-week-heading">
+          <div><p class="nutrition-eyebrow">Matched to your preferences</p><h3>Your flexible week</h3></div>
+          </div>
+          <p class="nutrition-summary" id="nutrition-summary"></p>
+          <div class="nutrition-days" id="nutrition-days"></div>
+          <section class="nutrition-shopping" aria-labelledby="shopping-title">
+            <h3 id="shopping-title">Shopping starter list</h3>
+            <ul id="nutrition-shopping-list"></ul>
+          </section>
+        </div>
+
+        <div id="nutrition-plan-unavailable" class="nutrition-plan-unavailable" hidden>
+          <strong>Calorie estimate is available.</strong>
+          <span id="nutrition-plan-error"></span>
+        </div>
+
+        <div class="nutrition-disclaimer">
+          <strong>Use this as a starting point.</strong> This general tool is not medical advice, allergy guidance, or a substitute for a registered dietitian. The local dataset does not verify ingredient labels or cooking methods. For weight-loss goals, this app blocks estimates below 1,000 kcal/day; the NIDDK Body Weight Planner excludes pregnancy and breastfeeding.
+          <div class="nutrition-sources">
+            <a href="https://pubmed.ncbi.nlm.nih.gov/2305711/" target="_blank" rel="noopener noreferrer">Mifflin–St Jeor study</a>
+            <a href="https://www.niddk.nih.gov/health-information/weight-management/body-weight-planner" target="_blank" rel="noopener noreferrer">NIDDK Body Weight Planner</a>
+          </div>
+        </div>
+      </div>
+    </section>
+  </div>
+</section>
+{% endblock %}
+
+{% block extra_scripts %}
+  <script src="{{ url_for('static', filename='js/ai.js') }}" defer></script>
+{% endblock %}
