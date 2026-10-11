@@ -185,6 +185,18 @@ class User(UserMixin, db.Model):
         return distance <= self.privacy_zone_radius_meters
 
 
+class PaymentTransaction(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey("user.id"), nullable=False, index=True)
+    order_id = db.Column(db.String(64), nullable=False, unique=True)
+    payment_id = db.Column(db.String(64), unique=True)
+    amount_subunits = db.Column(db.Integer, nullable=False)
+    currency = db.Column(db.String(3), nullable=False)
+    status = db.Column(db.String(20), nullable=False, default="pending", index=True)
+    created_at = db.Column(db.DateTime, default=datetime.utcnow, nullable=False)
+    paid_at = db.Column(db.DateTime)
+
+
 class Workout(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     user_id = db.Column(db.Integer, db.ForeignKey("user.id"), nullable=False)

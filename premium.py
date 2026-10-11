@@ -1,10 +1,9 @@
 from flask import Blueprint, flash, redirect, render_template, request, url_for
 from flask_login import current_user
-from sqlalchemy.exc import SQLAlchemyError
 
 from fitness import apply_sports_choices, load_sports
 from forms import CalorieCalculatorForm, PremiumForm
-from models import db
+from payment import gateway_is_configured
 
 
 premium_bp = Blueprint("premium", __name__)
@@ -24,18 +23,7 @@ def premium():
             return redirect(url_for("auth.login"))
 
         form_name = request.form.get("form_name")
-        if form_name == "activate" and premium_form.validate_on_submit():
-            current_user.activate_premium(days=30)
-            try:
-                db.session.commit()
-            except SQLAlchemyError:
-                db.session.rollback()
-                flash("We could not activate Premium. Please try again.", "error")
-            else:
-                flash("Demo Premium started for 30 days. No payment was processed.", "success")
-                return redirect(url_for("fitness.dashboard"))
-
-        elif form_name == "calculator":
+        if form_name == "calculator":
             if not current_user.premium_is_active:
                 flash("The calorie calculator requires Premium.", "info")
                 return redirect(url_for("premium.premium"))
@@ -59,4 +47,5 @@ def premium():
         form=premium_form,
         calculator_form=calculator_form,
         calorie_result=calorie_result,
+        payment_ready=gateway_is_configured(),
     )

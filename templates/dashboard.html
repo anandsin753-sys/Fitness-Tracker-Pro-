@@ -196,7 +196,7 @@
       <p class="muted">Premium indicators, advanced analytics, and calorie estimates are active for this account.</p>
       <a class="secondary-button" href="{{ url_for('premium.premium') }}">Open calorie calculator</a>
     {% else %}
-      <p class="muted">Advanced analytics and the calorie calculator require Premium. Demo Premium starts at {{ premium_price.display|safe }} with no payment gateway.</p>
+      <p class="muted">Advanced analytics and the calorie calculator require Premium. The 30-day plan starts at {{ premium_price.display|safe }} as a one-time purchase.</p>
       <a class="secondary-button" href="{{ url_for('premium.premium') }}">View Premium</a>
     {% endif %}
   </div>

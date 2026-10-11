@@ -3,6 +3,12 @@
 
 {% block title %}Premium · FitnessTrackerPro.com{% endblock %}
 
+{% block extra_head %}
+  {% if current_user.is_authenticated and payment_ready %}
+    <script defer src="https://checkout.razorpay.com/v1/checkout.js"></script>
+  {% endif %}
+{% endblock %}
+
 {% block content %}
 <section class="dashboard-grid">
   <div class="panel premium-panel">
@@ -13,17 +19,24 @@
         Premium adds advanced analytics, extra insights, dashboard indicators, and a calorie calculator.
         Price shown for your selected country: {{ premium_price.display|safe }}.
       </p>
-      <p class="muted">This local demo activation does not process a real payment.</p>
+      <p class="muted">One-time payment for 30 days. No automatic renewal. Card details are handled by Razorpay.</p>
     </div>
-    <form method="post">
-      {{ form.hidden_tag() }}
-      <input type="hidden" name="form_name" value="activate">
-      {% if current_user.is_authenticated and current_user.premium_is_active %}
-        <button class="primary-button" type="submit">Extend demo Premium</button>
-      {% else %}
-        {{ form.submit(class="primary-button") }}
-      {% endif %}
-    </form>
+    {% if current_user.is_authenticated and payment_ready %}
+      <form id="premium-checkout-form" method="post" action="{{ url_for('payments.create_order') }}">
+        {{ form.hidden_tag() }}
+        {% if current_user.premium_is_active %}
+          {{ form.submit(value="Buy 30 more days", class="primary-button") }}
+        {% else %}
+          {{ form.submit(class="primary-button") }}
+        {% endif %}
+        <p id="payment-status" class="muted" role="status" aria-live="polite"></p>
+      </form>
+      <noscript><p class="muted">Enable JavaScript to open secure Razorpay Checkout.</p></noscript>
+    {% elif current_user.is_authenticated %}
+      <p class="muted">Online checkout is not configured yet. The site owner must add Razorpay credentials, a webhook secret, and a strong server SECRET_KEY.</p>
+    {% else %}
+      <a class="primary-button" href="{{ url_for('auth.login') }}">Log in to buy Premium</a>
+    {% endif %}
   </div>
 
   <div class="panel">
@@ -52,7 +65,7 @@
         <p class="flash info">Premium expires in about 10 days or less. Your data will stay saved if it expires.</p>
       {% endif %}
     {% else %}
-      <p class="muted">Log in to activate demo Premium for your account.</p>
+      <p class="muted">Log in to buy Premium for your account.</p>
     {% endif %}
   </div>
 </section>
@@ -86,8 +99,14 @@
       {% endif %}
     {% else %}
       <p class="muted">The calorie calculator is a Premium feature.</p>
-      <a class="secondary-button" href="{{ url_for('auth.login') if not current_user.is_authenticated else url_for('premium.premium') }}">Log in or activate Premium</a>
+      <a class="secondary-button" href="{{ url_for('auth.login') if not current_user.is_authenticated else url_for('premium.premium') }}">Log in or buy Premium</a>
     {% endif %}
   </div>
 </section>
+{% endblock %}
+
+{% block extra_scripts %}
+  {% if current_user.is_authenticated and payment_ready %}
+    <script defer src="{{ url_for('static', filename='js/payment.js') }}"></script>
+  {% endif %}
 {% endblock %}

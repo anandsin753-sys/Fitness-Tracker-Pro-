@@ -237,6 +237,7 @@ def create_app(config_class=Config):
     app.config["COUNTRY_MAP"] = {
         country["name"].casefold(): country for country in countries
     }
+    app.config["PREMIUM_PRICE_BY_CURRENCY"] = PREMIUM_PRICE_BY_CURRENCY
 
     db.init_app(app)
     login_manager.init_app(app)
@@ -244,11 +245,13 @@ def create_app(config_class=Config):
     from auth import auth_bp
     from ai import ai_bp
     from fitness import fitness_bp
+    from payment import payments_bp
     from premium import premium_bp
 
     app.register_blueprint(auth_bp)
     app.register_blueprint(ai_bp)
     app.register_blueprint(fitness_bp)
+    app.register_blueprint(payments_bp)
     app.register_blueprint(premium_bp)
 
     with app.app_context():

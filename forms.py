@@ -415,7 +415,19 @@ class ResetDataForm(FlaskForm):
 
 
 class PremiumForm(FlaskForm):
-    submit = SubmitField("Start Demo Premium")
+    submit = SubmitField("Pay securely with Razorpay")
+
+
+class PaymentVerificationForm(FlaskForm):
+    razorpay_order_id = StringField(
+        validators=[DataRequired(), Length(max=64)],
+    )
+    razorpay_payment_id = StringField(
+        validators=[DataRequired(), Length(max=64)],
+    )
+    razorpay_signature = StringField(
+        validators=[DataRequired(), Length(min=64, max=64)],
+    )
 
 
 class CalorieCalculatorForm(FlaskForm):

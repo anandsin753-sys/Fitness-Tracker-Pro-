@@ -33,6 +33,10 @@ class Config:
         "MAIL_DEFAULT_SENDER",
         "noreply@fitness-app.local",
     )
+    RAZORPAY_KEY_ID = os.environ.get("RAZORPAY_KEY_ID", "").strip()
+    RAZORPAY_KEY_SECRET = os.environ.get("RAZORPAY_KEY_SECRET", "")
+    RAZORPAY_WEBHOOK_SECRET = os.environ.get("RAZORPAY_WEBHOOK_SECRET", "")
+    RAZORPAY_MODE = os.environ.get("RAZORPAY_MODE", "test").strip().lower()
     SQLALCHEMY_DATABASE_URI = os.environ.get(
         "DATABASE_URL",
         f"sqlite:///{BASE_DIR / 'instance' / 'fitness.db'}",
