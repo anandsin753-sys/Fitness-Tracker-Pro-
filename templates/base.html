@@ -5,6 +5,8 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="application-name" content="FitnessTrackerPro.com">
   <title>{% block title %}FitnessTrackerPro.com{% endblock %}</title>
+  <link rel="canonical" href="{{ config.PUBLIC_BASE_URL }}{{ request.path }}">
+  <meta property="og:url" content="{{ config.PUBLIC_BASE_URL }}{{ request.path }}">
   <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
   {% block extra_head %}{% endblock %}
   <script defer src="{{ url_for('static', filename='js/auth.js') }}"></script>

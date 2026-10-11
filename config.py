@@ -6,6 +6,10 @@ BASE_DIR = Path(__file__).resolve().parent
 
 
 class Config:
+    PUBLIC_BASE_URL = os.environ.get(
+        "PUBLIC_BASE_URL",
+        "https://fitnesstrackerpro.com",
+    ).strip().rstrip("/")
     SECRET_KEY = os.environ.get("SECRET_KEY", "change-this-secret-key")
     HEALTH_DATA_ENCRYPTION_KEY = os.environ.get("HEALTH_DATA_ENCRYPTION_KEY")
     EMAIL_VERIFICATION_SALT = os.environ.get(
